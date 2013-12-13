@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<title>Live check of username availability using jQuery/HTML5/PHP Data Objects (PDO)</title>
+<script src="username.js"></script>
+</head>
+<body>
+<b><font size="5">Live Field Check</font></b><p>Live username availability check while you type. When there is a pause of 500 
+milliseconds the username will be checked against the database.
+<br>
+The username choice will be reserved temporarily for 6 minutes, temporary blocking the username from other users. 
+<br>
+If the username is not selected, it will be freed for others to reserve.</p>
+<p>&nbsp;This 
+example is using jQuery, PHP Data Objects and MySQL, of course you can use a 
+different database if you wish.</p>
+	<table border="0">
+		<tr>
+			<td>Username</td>
+			<td>
+			<input type="text" size="20" id="username" autofocus></td>
+			<td id="result">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="3">
+			<input type="button" value="Reserve Username" id="reserve">
+			</td>
+		</tr>
+	</table>	
+		
+<p>In this example I am using a delayCall function I have written, it can 
+support multiple fields needed a delay:</p>
+<p><code>function delayCall(obj,ms,callback){<br>
+&nbsp;&nbsp;&nbsp; return $(obj).each(function(){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( typeof this.timer == 'undefined' 
+){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Define an 
+array to keep track of all fields/objects needed delays<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // This is in 
+order to make this a multiple delay handling function<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.timer = 
+new Array();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var obj = this;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.timer[obj.id]){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // in case 
+the timeout have not been reached and we get a new keystroke, we reset the timer<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+clearTimeout(this.timer[obj.id]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+delete(this.timer[obj.id]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.timer[obj.id] = 
+setTimeout(function(){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; callback(obj);}, ms);<br>
+&nbsp;&nbsp;&nbsp; });<br>
+};</code></p>
+<p>We use it this way basically:</p>
+<p><code>$(&quot;#username&quot;).on(&quot;keyup&quot;,function(){delayCall($(this),500,fieldKeyup);});</code><br>
+&nbsp;</p>
+<p>You can download the complete example <a href="username.zip">here</a>.</p>
+<p>What you need to have this sample on your site:</p>
+<ol>
+	<li>username.html - This HTML page.</li>
+	<li>username.sql - Database tables<ul>
+		<li>username - holds the usernames that have been reserved.<br><blockquote>
+		<p><code>CREATE TABLE IF NOT EXISTS `username` (<br>&nbsp;&nbsp;&nbsp; `uname` varchar(20) NOT NULL<br>) ENGINE=InnoDB DEFAULT CHARSET=utf8;</code><br>&nbsp;</p>
+	</blockquote></li>
+		<li>username_temp - holds temporary usernames until a user actually 
+		reserves them, used for temporary block of username for other users not 
+		to reserve them during 6 minutes time..<br><blockquote>
+<code>CREATE TABLE IF NOT EXISTS `username_temp` (<br>&nbsp;&nbsp;&nbsp; `uname` varchar(20) NOT NULL,<br>&nbsp;&nbsp;&nbsp; `sess_id` varchar(64) NOT NULL,<br>&nbsp;&nbsp;&nbsp; `timestamp` int(11) NOT NULL,<br>&nbsp;&nbsp;&nbsp; UNIQUE KEY `uname` (`uname`)<br>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;</code></blockquote></li>
+	</ul>
+	</li>
+	<li>username.php - The script that manages the username reservation and 
+	temporary blocking.</li>
+	<li>username.js - This jQuery script communicates with username.php on the 
+	server.<br>
+	</li>
+</ol>
+
+		
+</body>
+</html>
